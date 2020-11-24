@@ -3,21 +3,40 @@
 <html>
 	<head>
 		<title>Dashboard</title>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<meta name="description" content="" />
-		<meta name="keywords" content="" />
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+		<meta name="description" content=""/>
+		<meta name="keywords" content=""/>
 		<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,900' rel='stylesheet' type='text/css'>
+		<script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+		<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+		<link href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css" rel="stylesheet"/>
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" rel="stylesheet"/>
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"/>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"
+			  rel="stylesheet"/>
+		<link href="https://rawcdn.githack.com/python-visualization/folium/master/folium/templates/leaflet.awesome.rotate.css"
+			  rel="stylesheet"/>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+
 		<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>-->
 		<script src="js/skel.min.js"></script>
 		<!--<script src="js/skel-panels.min.js"></script>-->
 		<script src="js/init.js"></script>
+		<script src="https://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js"></script>
+
+		<!-- Load jQuery and PapaParse to read data from a CSV file -->
+		<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
 
 
-			<link rel="stylesheet" href="css/dc.css" />
-<link rel="stylesheet" href="css/stylenew.css" />
-			<link rel="stylesheet" href="css/introjs.css" />
-		
-<style>
+		<link rel="stylesheet" href="css/dc.css"/>
+		<link rel="stylesheet" href="css/stylenew.css"/>
+		<link rel="stylesheet" href="css/introjs.css"/>
+
+		<style>
 	      .intro_button{
 	        margin-top: 38px;
 	        float: left;
@@ -25,6 +44,11 @@
     		background-color: #1ab394;
     		color: white;
 	      }
+
+	    body {
+        background-image: url("./images/crop.jpg");
+        background-repeat: repeat;
+        }
 </style>
 
 	</head>
@@ -36,8 +60,7 @@
 				<button class="intro_button" type="button" autofocus onclick="javascript:introJs().setOption('showProgress', true).start();">Start Tour!</button>
 				<div class="container"> 					<!-- Logo -->
 					<div id="logo">
-						<h1><a href="#">Analytics Dashboard</a></h1>
-
+						<h1><a href="#"> Analytics Dashboard</a></h1>
 					</div>
 					
 					<!-- Nav -->
@@ -51,61 +74,109 @@
 				<div class="container">
 
 					<div class="row">
-						<div class="2u chart-wrapper" data-step="1" data-intro="Police Station Selector Drop Down. Select a police station to view specific stats.OPTIONAL FIELD"style="font-weight: normal" data-position="right" id="menuselect" style="background-color: #33CC99; height: 60px;">
-							<div class="chart-title">  <strong> Police Station Selector </strong> </div>					
+						<br><br><br>
+						<div class="2u chart-wrapper" data-step="1"
+							 data-intro="Police Station Selector Drop Down. Select a police station to view specific stats.OPTIONAL FIELD"
+							 style="font-weight: normal" data-position="right" id="menuselect"
+							 style="background-color: #33CC99; height: 60px;">
+							<div class="chart-title"><strong> Police Station Selector </strong></div>
 						</div>
 						<div class="2u">
-				<div> <span> &nbsp</span></div>
+							<div><span> &nbsp</span></div>
 						</div>
-						<div class="2u chart-wrapper" data-step="2" data-intro="Widget Displays the total count of records for the selections"style="font-weight: normal" data-position="bottom" id="total-projects">
-							<div class="chart-title">  <strong> Total Count </strong> </div>					
+						<div class="2u chart-wrapper" data-step="2"
+							 data-intro="Widget Displays the total count of records for the selections"
+							 style="font-weight: normal" data-position="bottom" id="total-projects">
+							<div class="chart-title"><strong> Total Count </strong></div>
 						</div>
-						<div class="2u chart-wrapper"  data-step="3" data-intro="Widget Displays the Net fatalities count for the selections"style="font-weight: normal" data-position="bottom" id="net-Fatalities">
+						<div class="2u chart-wrapper" data-step="3"
+							 data-intro="Widget Displays the Net fatalities count for the selections"
+							 style="font-weight: normal" data-position="bottom" id="net-Fatalities">
 							<div class="chart-title">  <strong> Net Fatalities </strong> </div>					
 						</div>
 
 
 					<div class="3u dc-data-count dc-chart"  data-step="4" data-intro="Selection widget displays the total rows available and rows currently selected in analysis"style="font-weight: normal" data-position="left"  id="row-selection">
 						<span class="filter-count">_</span> / <span class="total-count">_</span> records | <br\>
-						<span  data-step="11" data-intro="Click to reset the filters for the analysis"style="font-weight: normal" data-position="left" > 
-							<a href='javascript:dc.filterAll();dc.redrawAll();'><font color="#33CC99">Reset All</font></a>
+						<span data-step="11" data-intro="Click to reset the filters for the analysis"
+							  style="font-weight: normal" data-position="left">
+							<a href='javascript:dc.filterAll();dc.redrawAll();'><font
+									color="#33CC99">Reset All</font></a>
 						</span>
 					</div>
-							
 
-				</div>
+
+					</div>
 
 
 					<div class="row">
-						<div class="6u chart-wrapper"  data-step="5" data-intro="Area chart showing the number of fatalities over a period of time. Drag and select to view detailed data for a particular time range"style="font-weight: normal" data-position="right"  id="date-chart">
-							<div class="chart-title bold"> <strong> Number of Fatalities </strong></div>
+						<div class="4u chart-wrapper"
+							 data-intro="View the fatalities for the different police station groups"
+							 data-position="right" data-step="5" style="font-weight: normal">
+							<div class="chart-title"><strong> Fatalities pointer by Police Stations </strong></div>
+							<iframe frameborder="2px" scrolling="no" src="../map4.html" style="height:300px"></iframe>
+						</div>
+						<div class="4u chart-wrapper"
+							 data-intro="View the type of cases occurred at that point. Hover the cursor for tooltips."
+							 data-position="top" data-step="6" style="font-weight: normal">
+							<div class="chart-title"><strong> Fatalities Count by Hit and Run Cases</strong></div>
+							<iframe frameborder="2px" scrolling="no" src="../map6.html" style="height:300px"></iframe>
+						</div>
+
+						<div class="4u chart-wrapper"
+							 data-intro="View the HeatMap fatalities counts for the different police station groups"
+							 data-position="left" data-step="7" style="font-weight: normal">
+							<div class="chart-title"><strong> Heat Maps showing accident prone areas </strong></div>
+							<iframe frameborder="2px" scrolling="no" src="../HeatMap.html"
+									style="height:300px"></iframe>
+						</div>
+						<!--
+						<div class="4u chart-wrapper" id="map" data-step="7" data-intro="View the HeatMap fatalities counts for the different police station groups" style="height:300px" >
+							<div class="chart-title">  <strong> Map </strong> </div>
+						</div>
+						-->
+					</div>
+					<div class="row">
+						<div class="6u chart-wrapper"
+							 data-intro="Area chart showing the number of fatalities over a period of time. Drag and select to view detailed data for a particular time range"
+							 data-position="right" data-step="8" id="date-chart" style="font-weight: normal">
+							<div class="chart-title bold"><strong> Number of Fatalities </strong></div>
 
 						</div>
-						<div class="3u chart-wrapper" data-step="6" data-intro="View the fatalities count for the different type of Collision. Hover the mouse for tooltips."style="font-weight: normal" data-position="left"  id="collisionType-chart">
-							<div class="chart-title">  <strong> Fatalities Count for Collision Type </strong> </div>							
+						<div class="3u chart-wrapper"
+							 data-intro="View the fatalities count for the different type of Collision. Hover the mouse for tooltips."
+							 data-position="left" data-step="9" id="collisionType-chart" style="font-weight: normal">
+							<div class="chart-title"><strong> Fatalities Count for Collision Type </strong></div>
 
 						</div>
-						<div class="3u chart-wrapper"  data-step="7" data-intro="Intersection/Mid-block status displayed on a donut chart. Hover for tool tips"style="font-weight: normal" data-position="left"  id="intersection-chart">
-							<div class="chart-title">  <strong> Intersection/Mid-block </strong> </div>					
+						<div class="3u chart-wrapper"
+							 data-intro="Intersection/Mid-block status displayed on a donut chart. Hover for tool tips"
+							 data-position="left" data-step="10" id="intersection-chart" style="font-weight: normal">
+							<div class="chart-title"><strong> Intersection/Mid-block </strong></div>
 						</div>
 					</div>
 
 					<div class="row">
-						<div class="4u chart-wrapper"  data-step="8" data-intro="View the fatalities counts for the different police station groups"style="font-weight: normal" data-position="right"  id="policeStation-chart">
-							<div class="chart-title">  <strong> Fatalities Count by Police Stations </strong> </div>
+						<div class="4u chart-wrapper"
+							 data-intro="View the fatalities counts for the different police station groups"
+							 data-position="right" data-step="11" id="policeStation-chart" style="font-weight: normal">
+							<div class="chart-title"><strong> Fatalities Count by Police Stations </strong></div>
 						</div>
-						<div class="4u chart-wrapper"  data-step="9" data-intro="View the fatalities count for the hit and run cases. Hover the cursoe for tooltips."style="font-weight: normal" data-position="top" id="hitAndRun-chart">
-							<div class="chart-title">  <strong> Fatalities Count by Hit and Run Cases</strong></div>							
+						<div class="4u chart-wrapper"
+							 data-intro="View the fatalities count for the hit and run cases. Hover the cursoe for tooltips."
+							 data-position="top" data-step="12" id="hitAndRun-chart" style="font-weight: normal">
+							<div class="chart-title"><strong> Fatalities Count by Hit and Run Cases</strong></div>
 
 						</div>
 
-						<div class="4u chart-wrapper"  data-step="10" data-intro="View the fatalities count by maneuver type.THIS CHART IS STAND ALONE AND WILL NOT FILTER BY THE OTHER SELECTIONS"style="font-weight: normal" data-position="left"  id="maneuver-Fatalities">
-							<div class="chart-title">  <strong> Fatalities count by Maneuver Type </strong> </div>
+						<div class="4u chart-wrapper"
+							 data-intro="View the fatalities count by maneuver type.THIS CHART IS STAND ALONE AND WILL NOT FILTER BY THE OTHER SELECTIONS"
+							 data-position="left" data-step="13" id="maneuver-Fatalities" style="font-weight: normal">
+							<div class="chart-title"><strong> Fatalities count by Maneuver Type </strong></div>
 						</div>
 
 					</div>
 
-				</div>	
 			</div>
 
 			
