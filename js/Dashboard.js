@@ -2,6 +2,18 @@ queue()
     .defer(d3.csv, "data.csv")
     .await(makeGraphs);
 
+
+
+    /*var map = L.map('map').setView([51.505, -0.09], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    L.marker([51.5, -0.09]).addTo(map)
+        .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+        .openPopup();
+    */
 function makeGraphs(error, apiData) {
 	
 //Start Transformations
@@ -12,7 +24,11 @@ function makeGraphs(error, apiData) {
 		d.Date_of_offence = dateFormat.parse(d.Date_of_offence);
 				d.Date_of_offence.setDate(1);
 		d.Total_Fatalities = +d.Total_Fatalities;
+        d.Longitude = +d.Longitude;
+        d.Latitude = +d.Latitude;
 	});
+
+
 	//Create a Crossfilter instance
 	var ndx = crossfilter(dataSet);
 
@@ -24,6 +40,7 @@ function makeGraphs(error, apiData) {
 	var hit_and_run_ = ndx.dimension(function(d) { return d.Hit_and_run; });
 	var maneuver_type_ = ndx.dimension(function(d) { return d.Maneuver_type; });
 	var total_Fatalities_  = ndx.dimension(function(d) { return d.Total_Fatalities; });
+    var allDim = ndx.dimension(function(d) {return d;});
 
 
 	//Calculate metrics
@@ -157,11 +174,53 @@ console.log(maxDate);
         .ordering(function(d){return d.value;})
         .yAxis().tickFormat(d3.format("s"));
 
-
-
-
-
-
     dc.renderAll();
 
+
+
+ // Set up initial map center and zoom level
+  var map = L.map('map', {
+    center: [32.57, 72.69], // EDIT latitude, longitude to re-center map
+    zoom: 9,  // EDIT from 1 to 18 -- decrease to zoom out, increase to zoom in
+    scrollWheelZoom: true
+  });
+
+  /* Control panel to display map layers */
+  var controlLayers = L.control.layers( null, null, {
+    position: "topright",
+    collapsed: true
+  }).addTo(map);
+
+  // display Carto basemap tiles with light features and labels
+  var light = L.tileLayer('http://services.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}',
+                { attribution: 'LSCE &copy; 2016 | Baselayer &copy; ArcGis' }).addTo(map);  // EDIT - insert or remove ".addTo(map)" before last semicolon to display by default
+  controlLayers.addBaseLayer(light, 'Carto Light basemap');
+
+  /* Stamen colored terrain basemap tiles with labels */
+  var terrain = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png', {
+    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+  }); // EDIT - insert or remove ".addTo(map)" before last semicolon to display by default
+  controlLayers.addBaseLayer(terrain, 'Stamen Terrain basemap');
+
+  // see more basemap options at https://leaflet-extras.github.io/leaflet-providers/preview/
+
+  // Read markers data from data.csv
+  $.get('./data.csv', function(csvString) {
+
+    // Use PapaParse to convert string to array of objects
+    var data = Papa.parse(csvString, {header: true, dynamicTyping: true}).data;
+
+    // For each row in data, create a marker and add it to the map
+    // For each row, columns `Latitude`, `Longitude`, and `Title` are required
+    for (var i in data) {
+      var row = data[i]
+
+      var marker = L.marker([row.Latitude, row.Longitude], {
+        opacity: 1
+      }).bindPopup(row.Police_station)
+
+      marker.addTo(map)
+    }
+
+  })
 };
